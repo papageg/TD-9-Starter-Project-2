@@ -22,11 +22,36 @@ router.get('/users', (req, res) => {
 // Route that creates a new user.
 router.post('/users',[
   check('name')
-    .exists()
+    .exists({ checkNull: true, checkFalsy: true })
     .withMessage('Please provide a value for "name"'),
   check('email')
-    .exists()
-    .withMessage('Please provide a value for "email"'),
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "email"')
+    .isEmail()
+    .withMessage('Please provide a valid email adress for "email"'),
+  check('birthday')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide value for "birthday"')
+    .isISO8601()
+    .withMessage('Please provide a valid date for "birthday"'),
+  check('password')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please procide a value for "password"')
+    .isLength({ min: 8, max: 20 })
+    .withMessage('Please provide a value for "password" that is between 8 and 20 characters in length'),
+  check('passwordConfirmation')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "passwordConfirmation"')
+    .custom((value, { req })=> {
+      //Only attempt to compare the 'password' and 'passwordConfirmation'
+      //fields if they have values
+      if(value && req.body.password && value !== req.body.password){
+        throw new Error('Please provide values for "password" and "passwordConfirmation" that match');
+      }
+      //Return 'true' so the default "Invalid value" error message
+      // doesnt get returned
+      return true;
+    }),
 ], (req, res) => {
   // Attempt to get the validation result from the Request object.
   const errors = validationResult(req);
