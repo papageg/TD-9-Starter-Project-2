@@ -22,7 +22,7 @@ router.get('/users', (req, res) => {
 // Route that creates a new user.
 router.post('/users',[
   check('name')
-    .exists({ checkNull: true, checkFalsy: true })
+    .exists()
     .withMessage('Please provide a value for "name"'),
   check('email')
     .exists({ checkNull: true, checkFalsy: true })
